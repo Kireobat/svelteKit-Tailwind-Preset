@@ -5,7 +5,7 @@ import {handler} from "../frontend/build/handler.js";
 const app = express();
 const port = 81;
 
-app.use(express.json());
+app.use(express.urlencoded({extended: true})) // meget viktig
 
 app.get("/api", (req, res) => {
     res.send("Hello World!");
