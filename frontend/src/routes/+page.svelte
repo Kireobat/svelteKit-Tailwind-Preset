@@ -1,56 +1,55 @@
 <script>
-  import Example from "$lib/components/Example.svelte";
-  import { Button, Portal, Modal} from 'stwui';
+  import { Button, Portal, Modal } from "stwui";
   import "../app.postcss";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
+  import Topbar from "$lib/components/Topbar.svelte";
+  import Eula from "$lib/components/Eula.svelte";
+  import Home from "$lib/components/fragments/Home.svelte";
+  import Teams from "$lib/components/fragments/Teams.svelte";
+  import Work from "$lib/components/fragments/Work.svelte";
+  import Profile from "$lib/components/fragments/Profile.svelte";
 
-  let eula = "";
+  // variables
+  let fragment = "#home";
+
+  // fragments
+  // example: http://localhost:5000/#home
+  // #home is the fragment
+  const updateFragment = () => {
+    fragment = window.location.hash;
+  };
 
   onMount(() => {
-    fetch("eula.txt")
-    .then((res) => res.text())
-    .then((text) =>{  
-      return eula = text
-    })
+    if (typeof window !== "undefined") {
+      updateFragment();
+      window.addEventListener("hashchange", updateFragment);
+    } else {
+      console.log("window is undefined");
+    }
   });
-  
 
-  let open = false;
-
-	function openModal() {
-		open = true;
-	}
-
-	function closeModal() {
-		open = false;
-	}
+  onDestroy(() => {
+    if (typeof window !== "undefined") {
+      window.removeEventListener("hashchange", updateFragment);
+    } else {
+      console.log("window is undefined");
+    }
+  });
 </script>
 
-<main>
-  <h1>This is a preset</h1>
-  
-  <Button type="primary">Button</Button>
-
-  <Button type="primary" on:click={openModal}>Open Modal</Button>
-
-  <Portal>
-    {#if open}
-    <Modal handleClose={closeModal}>
-      <Modal.Content slot="content">
-        <Modal.Content.Header slot="header"><h3>END USER LICENSE AGREEMENT</h3></Modal.Content.Header>
-        <Modal.Content.Body slot="body">
-          <p>{eula}</p>
-        </Modal.Content.Body>
-        <div class="flex ml-12 mb-4 space-x-6">
-        <Button type="primary">Accept</Button>
-        <Button type="danger">Cancel</Button>
-        </div>
-      </Modal.Content>
-      
-    </Modal>
+<main class="mt-4 mx-2">
+  <Topbar />
+  <div class="mt-4">
+    {#if fragment === "#home"}
+      <Home />
+    {:else if fragment === "#teams"}
+      <Teams />
+    {:else if fragment === "#work"}
+      <Work />
+    {:else if fragment === "#profile"}
+      <Profile />
     {/if}
-  </Portal>
-</main>
+  </div>
 
-<style lang="postcss">
-</style>
+  <p>The current fragment identifier is: {fragment}</p>
+</main>
